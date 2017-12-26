@@ -18,6 +18,12 @@ git clone https://github.com/grom194/hh_stats.git
 cd hh_stats
 ```
 
+Установите необходимые библиотеки 
+
+```bash
+npm install --production
+```
+
 Соберите последнюю сборку библиотеки
 ```bash
 npm run build
