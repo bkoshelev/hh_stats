@@ -9,42 +9,45 @@ import axios from "axios";
 //   }
 
 export default async () => {
-  const hh_instance = axios.create({
-    baseURL: "https://api.hh.ru/",
-    timeout: 1000,
-    headers: { "X-Custom-Header": "MyApp/1.0 (my-app-feedback@example.com)" }
-  });
+  try {
+    const hh_instance = axios.create({
+      baseURL: "https://api.hh.ru/",
+      timeout: 1000,
+      headers: { "X-Custom-Header": "MyApp/1.0 (my-app-feedback@example.com)" }
+    });
 
-  const params = hhStatsData.params;
+    const params = hhStatsData.params;
 
-  const test = await hh_instance.get("/vacancies", {
-    params: params
-  });
-
-  const { pages, found } = await test.data;
-
-  console.log(`${found} vacancies in ${pages} pages founded`);
-
-  const pagesList = Array.from(Array(pages).keys());
-
-  // const result = pagesList.reduce(async (acc, item) => {
-
-  // }, []);
-
-  let vacanciesList = [];
-
-  for (let page = 0; page < pages + 1; page++) {
-    params.page = page;
-
-    const response = await hh_instance.get("/vacancies", {
+    const test = await hh_instance.get("/vacancies", {
       params: params
     });
 
-    const vacancies = response.data.items;
+    let { pages, found } = await test.data;
 
-    vacanciesList = [...vacanciesList, ...vacancies];
+    console.log(`${found} vacancies in ${pages} pages founded`);
+
+    if (found > 1999) {
+      pages = Math.floor(1999 / hhStatsData.params.per_page);
+    }
+
+    let vacanciesList = [];
+
+    for (let page = 0; page < pages + 1; page++) {
+      params.page = page;
+
+      const response = await hh_instance.get("/vacancies", {
+        params: params
+      });
+
+      const vacancies = response.data.items;
+
+      vacanciesList = [...vacanciesList, ...vacancies];
+    }
+
+    const result = vacanciesList;
+    return result;
+  } catch (error) {
+    console.warn("произошла ошибка во время обращения к HH");
+    console.warn("error >>>", error);
   }
-
-  const result = vacanciesList;
-  return result;
 };
